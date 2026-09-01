@@ -52,7 +52,7 @@ Drop `BMP585Sensor.hpp` and `BMP585Sensor.cpp` into your project's source tree, 
 your_project/
 ├── CMakeLists.txt
 ├── main.cpp
-└── drivers/
+└── lib/
     ├── BMP585Sensor.hpp
     └── BMP585Sensor.cpp
 ```
@@ -72,7 +72,7 @@ pico_sdk_init()
 
 add_executable(bmp585_example
     main.cpp
-    drivers/BMP585Sensor.cpp
+    lib/BMP585Sensor.cpp
 )
 
 target_link_libraries(bmp585_example

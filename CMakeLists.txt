@@ -37,7 +37,7 @@ pico_sdk_init()
 
 add_executable(RP2350_BMP585_Driver 
     RP2350_BMP585_Driver.cpp
-    BMP585Sensor.cpp
+    lib/BMP585Sensor.cpp
 )
 
 pico_set_program_name(RP2350_BMP585_Driver "RP2350_BMP585_Driver")
