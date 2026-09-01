@@ -1,0 +1,60 @@
+#include <stdio.h>
+
+#include "pico/stdlib.h"
+#include "hardware/spi.h"
+
+#include "BMP585Sensor.hpp"
+
+// SPI bus pin assignments.
+constexpr uint PIN_MISO = 20;
+constexpr uint PIN_MOSI = 19;
+constexpr uint PIN_SCK = 22;
+
+// Chip-select pin for BMP585
+constexpr uint PIN_BMP585_CS = 11;
+
+int main() {
+    // Initialise the standard I/O.
+     stdio_init_all();
+
+    // Configure SPI0 for communication with the sensors at 500kHz.
+    spi_init(spi0, 500 * 1000);
+
+    // Configure the SPI pins on RP2350.
+    gpio_set_function(PIN_MISO, GPIO_FUNC_SPI);
+    gpio_set_function(PIN_SCK, GPIO_FUNC_SPI);
+    gpio_set_function(PIN_MOSI, GPIO_FUNC_SPI);
+
+    // Configure the BMP585 chip-select GPIO.
+    gpio_init(PIN_BMP585_CS);
+    gpio_set_dir(PIN_BMP585_CS, GPIO_OUT);
+    gpio_put(PIN_BMP585_CS, 1);
+
+    // Create and initialise the BMP585 pressure sensor.
+    BMP585Sensor bmp585(PIN_BMP585_CS);
+    if (!bmp585.init()) {
+        printf("Sensor initialisation failed.\n");
+        while (true) tight_loop_contents();
+    }
+
+    // Configure the sensor's measurement settings.
+    bmp585.configure();
+
+    // Create data structure for temperature and pressure measurements.
+    BMP585Sensor::Data sensor_data;
+
+    while (true) {
+        // Read the latest temperature and pressure measurements.
+        if (bmp585.readData(sensor_data)) {
+            printf("Temp: %.2f degC  |  Pressure: %.2f Pa (%.2f hPa)\n",
+                   sensor_data.temperature_c,
+                   sensor_data.pressure_pa,
+                   sensor_data.pressure_pa / 100.0f);
+        }
+
+        // Wait for 500 ms before taking the next measurement.
+        sleep_ms(500);
+    }
+
+    return 0;
+}
